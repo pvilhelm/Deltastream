@@ -92,6 +92,12 @@ public class Part {
     Part(){
     }
     
+    /**
+     * Produces chunks when a part has it's data.
+     * @return 
+     */
+    
+    
     boolean ProduceChunks(){
         if(data == null)
             return false; 
@@ -106,12 +112,12 @@ public class Part {
             byte[] chunkData = Arrays.copyOfRange(data, from,to );
             arrList.add(chunkData);
         }
-        int chunkNr = 0;
+        short chunkNr = 0;
         chunkList = new LinkedList();
         
         for(Iterator<byte[]> arrIter = arrList.iterator();arrIter.hasNext();){
            byte[] chunkData = arrIter.next();
-           Chunk tmpPtr = new Chunk(chunkData,chunkNr++,arrList.size(),partNr);
+           Chunk tmpPtr = new Chunk(chunkData,chunkNr++,(short)arrList.size(),partNr);
            chunkList.add(tmpPtr);
            
         }

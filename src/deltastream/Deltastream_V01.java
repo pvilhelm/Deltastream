@@ -22,20 +22,11 @@ public class Deltastream_V01 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        OriginalTransmissionInput orgInputTask = null;
-        try {
-            // TODO code application logic here
-            orgInputTask = new OriginalTransmissionInput(3333);
-        } catch (SocketException ex) {
-            Logger.getLogger(Deltastream_V01.class.getName()).log(Level.SEVERE, null, ex);
-            System.exit(-1);
-        }
-        Thread orgInThread = new Thread(orgInputTask);
-        orgInThread.start();
         
-        Timer chopTimer = new Timer();
-        OriginalTransmissionInputChopper chopperTask = new OriginalTransmissionInputChopper();
-        chopTimer.scheduleAtFixedRate(chopperTask, new Date(), 500);
+        Transmission localTransmission = new Transmission(true);
+        
+        
+        
         
     }
     

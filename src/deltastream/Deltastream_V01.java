@@ -23,7 +23,7 @@ public class Deltastream_V01 {
      */
     public static void main(String[] args) {
         
-        Transmission localTransmission = new Transmission(true);
+        Transmission localTransmission = new Transmission();
         
         
         

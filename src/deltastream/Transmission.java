@@ -5,8 +5,10 @@
  */
 package deltastream;
 
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.Timer;
 import java.util.logging.Level;
@@ -17,6 +19,8 @@ import java.util.logging.Logger;
  * @author petter
  */
 public class Transmission {
+    HashMap<InetAddress,Node> hashMapNodes;
+    Timer chopTimer;
     boolean localTransmission = false;
 
     public boolean isLocalTransmission() {
@@ -45,12 +49,19 @@ public class Transmission {
     Thread orgInThread; 
     OriginalTransmissionInputChopper chopperTask;
     
-    Transmission(boolean isLocal){
+    Transmission(){
         Random rand = new Random();
         transmissionId = rand.nextLong();
         startTime = new Date();
-        
-         
+    }
+    
+    Transmission(long transmissionId){
+        this.transmissionId = transmissionId;
+        startTime = new Date();
+    }
+    
+    void StartLocalTransmissionRx(){
+        setLocalTransmission(true);
         try {
             // TODO code application logic here
             orgInputTask = new OriginalTransmissionInput(3333);
@@ -60,12 +71,19 @@ public class Transmission {
         }
         orgInThread = new Thread(orgInputTask);
         orgInThread.start();
-        
-        Timer chopTimer = new Timer();
+        chopTimer = new Timer();
         chopperTask = new OriginalTransmissionInputChopper();
         chopTimer.scheduleAtFixedRate(chopperTask, new Date(), 500);
     }
     
-    
-    
+    void StopLocalTransmissionRx(){
+        if(chopTimer != null)
+            chopTimer.cancel();
+    }
+    /**
+     * Starts the receiving and transmitting of parts with the deltastream. 
+     */
+    void StartRemoteRxTx(){
+        
+    }
 }

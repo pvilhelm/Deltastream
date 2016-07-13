@@ -5,10 +5,13 @@
  */
 package deltastream;
  
+import java.nio.ByteBuffer;
 import java.util.Date;
 
 /**
  *This class represents a part of the original stream
+ * <p>
+ * Each part consists transmission number, part number, timestamps and zero or more datagrams and timestamps and length for each of those datagrams. 
  * @author petter
  */
 public class TransStreamData extends Part{
@@ -17,8 +20,12 @@ public class TransStreamData extends Part{
     TransStreamData(byte [] data, int partNr, long transmissionID){
         type = Part.PartTypes.TRANSMISSION_STREAMDATA;
         this.broadcastId = transmissionID;
-        this.data = data;
         timeStamp = new Date().getTime();
+        this.partNr = partNr;
+        this.data = data;
+                
         ProduceChunks();
     }
+    
+    
 }

@@ -10,5 +10,7 @@ package deltastream;
  * @author petter
  */
 public class ConfigData {
-    static int chunkMaxSize = 1400; 
+    static int chunkMaxSize = 1400;
+    static short remotePortRx = 3434;
+    
 }

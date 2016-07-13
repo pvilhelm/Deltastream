@@ -15,10 +15,33 @@ import java.net.*;
  */
 public class Node {
     InetAddress inetAddress;
+    byte rating;
+    float debtTo;
+    long uploadedToB;
+    long downloadFromB;
+    int ping = Integer.MAX_VALUE;
+    Transmission transmission = null;
+        
     Node(InetAddress inetAddress){
         this.inetAddress = inetAddress;
+        
+    }
+    
+    void SetTransmission(Transmission transmission){
+        this.transmission = transmission;
+    }
+    Transmission GetTransmission(){
+        return this.transmission;
     }
     
     
     
+    
+    /**
+     * Ping the node
+     */
+    
+    void Ping(){
+        
+    }  
 }

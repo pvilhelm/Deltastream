@@ -7,6 +7,7 @@ package deltastream;
 import java.io.IOException;
 import java.net.*;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.logging.Level;
@@ -40,7 +41,7 @@ public final class OriginalTransmissionInput implements Runnable {
     }
     
     DatagramSocket orgInputSocket;
-    static LinkedList<byte[]> linkListIncData;
+    static LinkedList<DatagramWrapper> linkListIncData;
     
     OriginalTransmissionInput(int port) throws SocketException{
         orgInputSocket = new DatagramSocket(port);
@@ -67,8 +68,10 @@ public final class OriginalTransmissionInput implements Runnable {
      */
     
     public synchronized void addIncDataBuffer(DatagramPacket dgPkt){
-        if(linkListIncData.size()<10000)
-            linkListIncData.add(Arrays.copyOfRange(dgPkt.getData(), dgPkt.getOffset(), dgPkt.getLength()));
+        if(linkListIncData.size()<10000){
+            linkListIncData.add(new DatagramWrapper(dgPkt));
+            
+        }
         return;
     }
     
@@ -92,6 +95,7 @@ public final class OriginalTransmissionInput implements Runnable {
         }
         
     }
+    
     
     
 }

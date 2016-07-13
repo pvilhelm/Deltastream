@@ -30,21 +30,25 @@ public class OriginalTransmissionInputChopper extends TimerTask{
         
         //count size of buffer
         int n = datagramBuffer.size();
+        if(n>65535){
+            System.out.println(new Date().toString()+": Incoming original transmission buffer too big");
+            return;
+        }
         int sum=0;
-        for(Iterator<byte[]> iter =  datagramBuffer.iterator();iter.hasNext();){
-            sum+=iter.next().length;
+        for(Iterator<DatagramWrapper> iter =  datagramBuffer.iterator();iter.hasNext();){
+            sum+=iter.next().datagramData.length;
         }
         
-        ByteBuffer dgrStream = ByteBuffer.allocate(sum+8+4+1+n*4);//TODO do header size nice
+        ByteBuffer dgrStream = ByteBuffer.allocate(sum+Part.HeaderSizes.TRANSMISSION_STREAMDATA_HEADERSIZE+n*(Part.HeaderSizes.STREAMDATA_CHUNK_HEADERSIZE));//TODO do header size nice
         dgrStream.putLong(OriginalTransmissionInput.transmissionID);
-        dgrStream.putInt(partNr);
         dgrStream.put(Part.PartTypes.TRANSMISSION_STREAMDATA);
+        dgrStream.putLong(new Date().getTime());
         
-        for(Iterator<byte[]> iter = datagramBuffer.iterator();iter.hasNext();){
-            byte[] tmp = iter.next();
-            dgrStream.putInt(tmp.length);
-            if(tmp.length>0)
-                dgrStream.put(tmp);
+        for(Iterator<DatagramWrapper> iter = datagramBuffer.iterator();iter.hasNext();){
+            DatagramWrapper tmp = iter.next();
+            dgrStream.putShort((short)tmp.datagramData.length);
+            if((short)tmp.datagramData.length>0)
+                dgrStream.put(tmp.datagramData);
         }
         TransStreamData newPart = new TransStreamData(dgrStream.array(),partNr,OriginalTransmissionInput.transmissionID);
         System.out.println(new Date().toString()+": Gjorde del med storlek "+dgrStream.array().length/1024.0 + " kb");

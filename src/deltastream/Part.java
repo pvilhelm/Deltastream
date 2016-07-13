@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Vector;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
     /** 
     * <p>This class represents all the different kinds of transmissions made between 
@@ -80,7 +81,7 @@ public class Part {
      * 
      * This method is for the original transmittor to create new parts.
      */
-    Part(byte[] data, int type){
+    Part(byte[] data){
         this.data = data;
         ProduceChunks();
         
@@ -117,7 +118,7 @@ public class Part {
         
         for(Iterator<byte[]> arrIter = arrList.iterator();arrIter.hasNext();){
            byte[] chunkData = arrIter.next();
-           Chunk tmpPtr = new Chunk(chunkData,chunkNr++,(short)arrList.size(),partNr);
+           Chunk tmpPtr = new Chunk(chunkData,chunkNr++,(short)arrList.size(),partNr, ConfigData.remotePortRx);
            chunkList.add(tmpPtr);
            
         }
@@ -137,9 +138,28 @@ public class Part {
         public static final byte PULL_REQUST = 6;
         public static final byte PULL_RQ_ANSWER = 7;
         public static final byte ABORT_TRANSFER = 8;
+        public static final byte PARTLIST_REQUEST = 9;
+        public static final byte PARTLIST_RQ_ANSWER = 10;
+        public static final byte RETRANSMIT_REQUEST = 11;
+        public static final byte RETRANSMIT_RQ_ANSWER = 12;
+        public static final byte CHANGE_PORT = 13;
+        public static final byte PING = 13;
+        public static final byte IMPLEMITATION_DEFINED = 127;
         public static final byte TRANSMISSION_METADATA = (byte) 255;
         public static final byte TRANSMISSION_PUBKEY = (byte) 254;
         public static final byte TRANSMISSION_ALTRUISTIC_NODES = (byte) 253;
         public static final byte TRANSMISSION_NODELIST = (byte) 252;
+    }
+    
+    public static class HeaderSizes{
+        public static final int BYTE = 1;
+        public static final int SHORT = 2;
+        public static final int INT = 4;
+        public static final int FLOAT = 4;
+        public static final int LONG = 8;
+        public static final int DOUBLE = 8;
+        public static final int TRANSMISSION_STREAMDATA_HEADERSIZE = LONG+SHORT;
+        public static final int STREAMDATA_CHUNK_HEADERSIZE =SHORT+INT+SHORT*2;
+        public static final int PING_HEADERSIZE = BYTE*2;
     }
 }

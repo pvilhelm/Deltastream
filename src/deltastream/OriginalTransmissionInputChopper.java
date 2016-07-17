@@ -54,3 +54,4 @@ public class OriginalTransmissionInputChopper extends TimerTask{
         System.out.println(new Date().toString()+": Gjorde del med storlek "+dgrStream.array().length/1024.0 + " kb");
     }
 }
+ 

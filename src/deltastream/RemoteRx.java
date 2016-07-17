@@ -16,22 +16,22 @@ import java.util.logging.Logger;
  *
  * @author petter
  */
-public class RemoteRxThread implements Runnable {
+public class RemoteRx implements Runnable {
     Transmission transmission = null;
     DatagramSocket socket;
     boolean RUN = true;
-    short port = 6666;
-    RemoteRxThread(){
-        
+    
+    RemoteRx(Transmission transmission){
+        this.transmission = transmission;
     }
     
     @Override
     public void run(){
         
         try {
-            socket = new DatagramSocket(port);
+            socket = new DatagramSocket(transmission.getRemoteRxPort());
         } catch (SocketException ex) {
-            Logger.getLogger(RemoteRxThread.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RemoteRx.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         while(RUN){
@@ -39,9 +39,9 @@ public class RemoteRxThread implements Runnable {
             try {
                 socket.receive(rxUDPpkt);
             } catch (IOException ex) {
-                Logger.getLogger(RemoteRxThread.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(RemoteRx.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
+        socket.close();  
     }
 }

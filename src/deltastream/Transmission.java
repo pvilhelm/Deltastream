@@ -45,9 +45,34 @@ public class Transmission {
         return startTime;
     }
     
+    int remoteTxPort;
+
+    public int getRemoteTxPort() {
+        return remoteTxPort;
+    }
+
+    public void setRemoteTxPort(int remoteTxPort) {
+        this.remoteTxPort = remoteTxPort;
+    }
+
+    int remoteRxPort;
+    
+    public int getRemoteRxPort() {
+        return remoteRxPort;
+    }
+
+    public void setRemoteRxPort(int remoteRxPort) {
+        this.remoteRxPort = remoteRxPort;
+    }
+    
     OriginalTransmissionInput orgInputTask  = null;
     Thread orgInThread; 
     OriginalTransmissionInputChopper chopperTask;
+    
+    RemoteRx remoteRx;
+    Thread RemoteRxThread;
+    RemoteTx remoteTx;
+    Thread RemoteTxThread;
     
     Transmission(){
         Random rand = new Random();
@@ -79,6 +104,12 @@ public class Transmission {
     void StopLocalTransmissionRx(){
         if(chopTimer != null)
             chopTimer.cancel();
+        try{
+            orgInputTask.orgInputSocket.close();
+        }
+        catch(Exception ee){
+            ;
+        }
     }
     /**
      * Starts the receiving and transmitting of parts with the deltastream. 

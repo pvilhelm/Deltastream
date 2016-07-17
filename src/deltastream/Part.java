@@ -130,6 +130,7 @@ public class Part {
          * This constant represents the Part type which contains a part of the 
          * orgininal stream transmission.
          */
+        public static final byte MULTI_PART_PART = 0;
         public static final byte TRANSMISSION_STREAMDATA = 1;
         public static final byte PUSH_REQUEST = 2;
         public static final byte PUSH_RQ_ANSWER = 3;
@@ -143,7 +144,8 @@ public class Part {
         public static final byte RETRANSMIT_REQUEST = 11;
         public static final byte RETRANSMIT_RQ_ANSWER = 12;
         public static final byte CHANGE_PORT = 13;
-        public static final byte PING = 13;
+        public static final byte PING = 14;
+        public static final byte PUBLIC_KEY_EXCHANGE = 15;
         public static final byte IMPLEMITATION_DEFINED = 127;
         public static final byte TRANSMISSION_METADATA = (byte) 255;
         public static final byte TRANSMISSION_PUBKEY = (byte) 254;

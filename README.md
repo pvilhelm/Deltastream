@@ -10,7 +10,7 @@ the load on the source node.
 
 The protocol is specially design for a uncontrolled and unkind environment, which
 is, the source doesn't control the protocol implementation the other nodes uses
-or can trust the fairness of the nodes. 
+or can trust the fairness or ability of the nodes. 
 
 Each node have to "buy" access to the stream from other nodes by promising future
 data of the same stream. 

@@ -5,12 +5,15 @@
  */
 package deltastream;
 
+import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Timer;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,6 +72,8 @@ public class Transmission {
     Thread orgInThread; 
     OriginalTransmissionInputChopper chopperTask;
     
+    BlockingQueue<DatagramPacket> remoteTxQue;
+    
     RemoteRx remoteRx;
     Thread RemoteRxThread;
     RemoteTx remoteTx;
@@ -78,12 +83,19 @@ public class Transmission {
         Random rand = new Random();
         transmissionId = rand.nextLong();
         startTime = new Date();
+        remoteTxQue = new LinkedBlockingQueue(ConfigData.REMOTE_TX_BLOCKING_QUEUE_CAP);
     }
     
     Transmission(long transmissionId){
         this.transmissionId = transmissionId;
         startTime = new Date();
+        remoteTxQue = new LinkedBlockingQueue(ConfigData.REMOTE_TX_BLOCKING_QUEUE_CAP);
     }
+    
+    @Override
+    public String toString(){
+        return "Transmission: ID "+getTransmissionId()+" Last part nr:" + getLastPartNr()+" Started: "+getStartTime().toString();
+    }        
     
     void StartLocalTransmissionRx(){
         setLocalTransmission(true);
@@ -115,6 +127,11 @@ public class Transmission {
      * Starts the receiving and transmitting of parts with the deltastream. 
      */
     void StartRemoteRxTx(){
-        
+        remoteRx = new RemoteRx(this);
+        RemoteRxThread = new Thread(remoteRx);
+        RemoteRxThread.start();
+        remoteTx = new RemoteTx(this);
+        RemoteTxThread = new Thread(remoteTx);
+        RemoteTxThread.start(); 
     }
 }

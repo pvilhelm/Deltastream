@@ -25,7 +25,8 @@ public class Deltastream_V01 {
         
         Transmission localTransmission = new Transmission();
         
-        
+        localTransmission.StartLocalTransmissionRx();
+        localTransmission.StartRemoteRxTx();
         
         
     }

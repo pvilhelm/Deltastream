@@ -12,5 +12,5 @@ package deltastream;
 public class ConfigData {
     static int chunkMaxSize = 1400;
     static short remotePortRx = 3434;
-    
+    static int REMOTE_TX_BLOCKING_QUEUE_CAP = 50;
 }

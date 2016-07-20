@@ -160,7 +160,7 @@ public class Part {
         public static final int FLOAT = 4;
         public static final int LONG = 8;
         public static final int DOUBLE = 8;
-        public static final int TRANSMISSION_STREAMDATA_HEADERSIZE = LONG+SHORT;
+        public static final int TRANSMISSION_STREAMDATA_HEADERSIZE = LONG+BYTE+LONG;
         public static final int STREAMDATA_CHUNK_HEADERSIZE =SHORT+INT+SHORT*2;
         public static final int PING_HEADERSIZE = BYTE*2;
     }

@@ -22,11 +22,9 @@ public class OriginalTransmissionInputChopper extends TimerTask{
     int partNr = 0;
     @Override
     public void run(){
-        
         partNr++;//first number is one
         
         LinkedList datagramBuffer = OriginalTransmissionInput.getIncDataBuffer();
-        
         
         //count size of buffer
         int n = datagramBuffer.size();

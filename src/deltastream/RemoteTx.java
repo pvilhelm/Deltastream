@@ -26,11 +26,11 @@ public class RemoteTx implements Runnable {
     DatagramSocket socket;
     boolean RUN = true;
     
-    BlockingQueue<DatagramPacket> remoteTxQue;
+     
     
     RemoteTx(Transmission transmission){
         this.transmission = transmission;
-      
+        
     }
     
     @Override
@@ -45,7 +45,7 @@ public class RemoteTx implements Runnable {
         while(RUN){
             DatagramPacket txUDPpkt;
             try {
-                txUDPpkt = remoteTxQue.take();
+                txUDPpkt = transmission.remoteTxQue.take();
             } catch (InterruptedException ex) {               
                 Logger.getLogger(RemoteTx.class.getName()).log(Level.SEVERE, null, ex);
                 continue;

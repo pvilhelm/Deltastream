@@ -6,6 +6,7 @@
 package deltastream;
 
 import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Vector;
@@ -31,6 +32,7 @@ public class Part {
     int partNr;
     LinkedList chunkList;
     long timeStamp;
+    int nrOfChunks;
     
     public int getPartNr() {
         return partNr;
@@ -93,6 +95,11 @@ public class Part {
     Part(){
     }
     
+    Part(LinkedList<Chunk> chunkList){
+        chunkList.sort(new Chunk.ChunkComparator());
+        
+    }
+    
     /**
      * Produces chunks when a part has it's data.
      * @return 
@@ -105,6 +112,11 @@ public class Part {
         
         ArrayList<byte[]> arrList = new ArrayList();
         
+        //ByteBuffer dataBuffer = ByteBuffer.wrap(data);
+        
+        /*this.broadcastId = dataBuffer.getLong();
+        this.type = dataBuffer.get();
+        this.timeStamp = dataBuffer.getLong();*/
         
         for(int i = 0; i<data.length;){
             int from = i;
@@ -122,6 +134,7 @@ public class Part {
            chunkList.add(tmpPtr);
            
         }
+        setComplete(true);
         return true;
     }
     

@@ -6,6 +6,11 @@
 package deltastream;
 import java.net.*;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 /**
  *
  * @author petter
@@ -15,7 +20,7 @@ import java.nio.ByteBuffer;
  * Each Part is made up off atleast one chunk. Each chunk includes the part 
  * number, the chunk number in the chunk sequence 
  */
-public class Chunk {
+public class Chunk{
     int partNr; 
     short chunkNr;
     short totalNrOfChunks;
@@ -45,5 +50,43 @@ public class Chunk {
         return datagram;
         
     }
+    /**
+    *Sorts the chunks according to their chunk number. 
+    */
+    public static class ChunkComparator implements Comparator<Chunk>{
+        @Override
+        public int compare(Chunk a, Chunk b){
+            return a.chunkNr < b.chunkNr ? -1 : a.chunkNr == b.chunkNr ? 0 : 1;
+        }
+    }
     
+    public static ArrayList GetMissingChunks(LinkedList<Chunk> chunkList) {
+        
+        chunkList.sort(new ChunkComparator());
+        
+        //check if chunk numbers are unique and all numbers are there
+        ArrayList<Integer> missingList = new ArrayList(0); 
+        
+        int firstTotalNrOfChunks = chunkList.getFirst().totalNrOfChunks;
+        ArrayList<Integer> presentChunkNrs = new ArrayList(firstTotalNrOfChunks);
+        
+        for(Iterator<Chunk> iter = chunkList.iterator();iter.hasNext();){
+            Chunk chunk = iter.next();
+            
+            int totalNrOfChunks = chunk.totalNrOfChunks;
+            if(firstTotalNrOfChunks!=totalNrOfChunks){//Inconsistent tot nr of chunks
+                return null; 
+            }  
+            presentChunkNrs.add((int)chunk.chunkNr);
+        }
+        
+        //check which chunks are acctually there
+        for(int i = 0;i<firstTotalNrOfChunks;i++){
+            if(!presentChunkNrs.contains(i)){
+                missingList.add(i);
+            }            
+        }
+        
+        return missingList; 
+    }
 }

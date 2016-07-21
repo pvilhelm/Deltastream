@@ -23,11 +23,15 @@ public class Deltastream_V01 {
      */
     public static void main(String[] args) {
         
+        System.out.println("Starting transmission ...");
         Transmission localTransmission = new Transmission();
+        localTransmission.setLocalRxPort(3333);
+        localTransmission.setRemoteRxPort(4444);
+        localTransmission.setRemoteTxPort(5555);
         
         localTransmission.StartLocalTransmissionRx();
         localTransmission.StartRemoteRxTx();
-        
+        System.out.println(localTransmission);
         
     }
     

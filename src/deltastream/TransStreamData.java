@@ -27,5 +27,7 @@ public class TransStreamData extends Part{
         ProduceChunks();
     }
     
-    
+    TransStreamData(){
+        
+    }
 }

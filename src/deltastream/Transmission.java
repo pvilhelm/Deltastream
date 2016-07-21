@@ -48,6 +48,17 @@ public class Transmission {
         return startTime;
     }
     
+    int localRxPort;
+
+    public int getLocalRxPort() {
+        return localRxPort;
+    }
+
+    public void setLocalRxPort(int localRxPort) {
+        this.localRxPort = localRxPort;
+    }
+    
+    
     int remoteTxPort;
 
     public int getRemoteTxPort() {
@@ -94,7 +105,9 @@ public class Transmission {
     
     @Override
     public String toString(){
-        return "Transmission: ID "+getTransmissionId()+" Last part nr:" + getLastPartNr()+" Started: "+getStartTime().toString();
+        return "Transmission: ID "+getTransmissionId()+" Last part nr:" + getLastPartNr()+" Started: "+getStartTime().toString()+"\n"+
+                "Local Rx port: " +getLocalRxPort() + " Remote Rx port: " + getRemoteRxPort()+ " Remote tx port: " + getRemoteTxPort();
+                
     }        
     
     void StartLocalTransmissionRx(){

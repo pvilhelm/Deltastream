@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Vector;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
     /** 
@@ -28,10 +29,11 @@ public class Part {
     long broadcastId;
     protected byte type = 0;//invalid type
     byte[] data;
-    boolean complete;
+    boolean complete = false;
     int partNr;
     LinkedList chunkList;
     long timeStamp;
+    long timeCreated;
     int nrOfChunks;
     
     public int getPartNr() {
@@ -84,6 +86,7 @@ public class Part {
      * This method is for the original transmittor to create new parts.
      */
     Part(byte[] data){
+        this.timeCreated = new Date().getTime();
         this.data = data;
         ProduceChunks();
         
@@ -93,11 +96,44 @@ public class Part {
      * Make an object without data.
      */
     Part(){
+        this.timeCreated = new Date().getTime();
     }
     
-    Part(LinkedList<Chunk> chunkList){
+    
+    boolean MakePartFromChunks(LinkedList<Chunk> chunkList){
+        this.timeCreated = new Date().getTime();
         chunkList.sort(new Chunk.ChunkComparator());
         
+        ArrayList missingChunks = Chunk.GetMissingChunks(chunkList);
+        
+        if(missingChunks != null && missingChunks.isEmpty()){
+            this.chunkList = chunkList;
+            int size = 0;
+            for (Iterator<Chunk> iterator = chunkList.iterator(); iterator.hasNext();) {
+                Chunk next = iterator.next();
+                size+=next.chunkData.length;
+            }
+            
+            
+            Chunk first = chunkList.getFirst();
+            ByteBuffer firstChunkBuffer = ByteBuffer.wrap(first.chunkData);
+            if(first.chunkData.length<(8+1+8))
+                return false;
+            this.broadcastId = firstChunkBuffer.getLong();
+            this.type = firstChunkBuffer.get();
+            this.timeStamp = firstChunkBuffer.getLong();
+            
+            ByteBuffer partDataBuffer = ByteBuffer.allocate(size);
+            for (Chunk next : chunkList) {
+                partDataBuffer.put(next.chunkData);
+            }
+            this.data = partDataBuffer.array();
+            ProduceChunks();
+            setComplete(true);
+            return true; 
+        }
+        else
+            return false; 
     }
     
     /**
@@ -125,17 +161,24 @@ public class Part {
             byte[] chunkData = Arrays.copyOfRange(data, from,to );
             arrList.add(chunkData);
         }
-        short chunkNr = 0;
+        char chunkNr = 0;
         chunkList = new LinkedList();
         
         for(Iterator<byte[]> arrIter = arrList.iterator();arrIter.hasNext();){
            byte[] chunkData = arrIter.next();
-           Chunk tmpPtr = new Chunk(chunkData,chunkNr++,(short)arrList.size(),partNr, ConfigData.remotePortRx);
+           Chunk tmpPtr = new Chunk(chunkData,chunkNr++,(char)arrList.size(),partNr, ConfigData.remotePortRx);
            chunkList.add(tmpPtr);
            
         }
         setComplete(true);
         return true;
+    }
+    
+    public static class PartComparator implements Comparator<Part>{
+        @Override
+        public int compare(Part a, Part b){
+            return a.partNr < b.partNr ? -1 : a.partNr == b.partNr ? 0 : 1;
+        }
     }
     
     public static class PartTypes{
@@ -159,11 +202,10 @@ public class Part {
         public static final byte CHANGE_PORT = 13;
         public static final byte PING = 14;
         public static final byte PUBLIC_KEY_EXCHANGE = 15;
+        public static final byte TRANSMISSION_METADATA = 100;
+        public static final byte TRANSMISSION_PUBKEY = 101;
+        public static final byte TRANSMISSION_NODELIST = 102;
         public static final byte IMPLEMITATION_DEFINED = 127;
-        public static final byte TRANSMISSION_METADATA = (byte) 255;
-        public static final byte TRANSMISSION_PUBKEY = (byte) 254;
-        public static final byte TRANSMISSION_ALTRUISTIC_NODES = (byte) 253;
-        public static final byte TRANSMISSION_NODELIST = (byte) 252;
     }
     
     public static class HeaderSizes{
@@ -174,7 +216,8 @@ public class Part {
         public static final int LONG = 8;
         public static final int DOUBLE = 8;
         public static final int TRANSMISSION_STREAMDATA_HEADERSIZE = LONG+BYTE+LONG;
-        public static final int STREAMDATA_CHUNK_HEADERSIZE =SHORT+INT+SHORT*2;
+        public static final int TRANSMISSION_STREAMDATA_DATA_HEADERSIZE =INT+SHORT+SHORT;
         public static final int PING_HEADERSIZE = BYTE*2;
+        public static final int CHUNK_HEADERSIZE = SHORT+INT+SHORT+SHORT;
     }
 }

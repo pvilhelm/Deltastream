@@ -7,7 +7,9 @@ package deltastream;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,28 +24,37 @@ import java.util.List;
  */
 public class Chunk{
     int partNr; 
-    short chunkNr;
-    short totalNrOfChunks;
+    char chunkNr;
+    char totalNrOfChunks;
     byte [] chunkData; 
-    short portNr; 
-    
-    Chunk(byte[] data, short chunkNr,short totalNrOfChunks, int partNr, short portNr){
+    char portNr; 
+    long timeCreated; 
+  
+    Chunk(byte[] data, char chunkNr,char totalNrOfChunks, int partNr, char portNr){
         this.partNr = partNr;
         this.chunkData = data;
         this.chunkNr = chunkNr; 
         this.totalNrOfChunks = totalNrOfChunks; 
         this.portNr = portNr;
+        this.timeCreated = new Date().getTime();
     }
+    
+    Chunk(DatagramPacket dgP){
+        this.timeCreated = new Date().getTime();
+        this.chunkData = dgP.getData();
+        this.portNr = (char)dgP.getPort();
+        
+     }
     
     DatagramPacket toDatagram(InetAddress address, int port){
      
-        int length = chunkData.length+Part.HeaderSizes.STREAMDATA_CHUNK_HEADERSIZE;
+        int length = chunkData.length+Part.HeaderSizes.TRANSMISSION_STREAMDATA_DATA_HEADERSIZE;
 
         ByteBuffer byteBufferStream = ByteBuffer.allocate(length);
-        byteBufferStream.putShort(portNr);
+        byteBufferStream.putChar(portNr);
         byteBufferStream.putInt(partNr);
-        byteBufferStream.putShort(chunkNr);
-        byteBufferStream.putShort(totalNrOfChunks);
+        byteBufferStream.putChar(chunkNr);
+        byteBufferStream.putChar(totalNrOfChunks);
         byteBufferStream.put(chunkData);
         byte[] datagramByteBuffer = byteBufferStream.array();
         DatagramPacket datagram = new DatagramPacket(datagramByteBuffer,datagramByteBuffer.length,address,port);
@@ -59,6 +70,18 @@ public class Chunk{
             return a.chunkNr < b.chunkNr ? -1 : a.chunkNr == b.chunkNr ? 0 : 1;
         }
     }
+ 
+    /**
+     * Get the chunks that are missing in a chunk sequence as an arraylist of Integer objects. 
+     * <p>
+     * Takes a linked list of chunks as argument. Returns null if the total 
+     * number of chunks are inconsistent in the chunks in the list or if the 
+     * part nr. differs. 
+     * 
+     * 
+     * @param chunkList
+     * @return ArrayList, null
+     */
     
     public static ArrayList GetMissingChunks(LinkedList<Chunk> chunkList) {
         
@@ -68,13 +91,14 @@ public class Chunk{
         ArrayList<Integer> missingList = new ArrayList(0); 
         
         int firstTotalNrOfChunks = chunkList.getFirst().totalNrOfChunks;
+        int firstPartNr = chunkList.getFirst().partNr;
         ArrayList<Integer> presentChunkNrs = new ArrayList(firstTotalNrOfChunks);
         
         for(Iterator<Chunk> iter = chunkList.iterator();iter.hasNext();){
             Chunk chunk = iter.next();
-            
+            int partNr = chunk.partNr;
             int totalNrOfChunks = chunk.totalNrOfChunks;
-            if(firstTotalNrOfChunks!=totalNrOfChunks){//Inconsistent tot nr of chunks
+            if(firstTotalNrOfChunks!=totalNrOfChunks || firstPartNr != partNr){//Inconsistent tot nr of chunks or partNr
                 return null; 
             }  
             presentChunkNrs.add((int)chunk.chunkNr);
@@ -89,4 +113,7 @@ public class Chunk{
         
         return missingList; 
     }
+
+    
+    
 }

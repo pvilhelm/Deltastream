@@ -25,6 +25,14 @@ public class RemoteTx implements Runnable {
     Transmission transmission = null;
     DatagramSocket socket;
     boolean RUN = true;
+
+    public boolean isRUN() {
+        return RUN;
+    }
+
+    public void setRUN(boolean RUN) {
+        this.RUN = RUN;
+    }
     
      
     
@@ -45,7 +53,7 @@ public class RemoteTx implements Runnable {
         while(RUN){
             DatagramPacket txUDPpkt;
             try {
-                txUDPpkt = transmission.remoteTxQue.take();
+                txUDPpkt = transmission.remoteTxQue.take().dgPkt;
             } catch (InterruptedException ex) {               
                 Logger.getLogger(RemoteTx.class.getName()).log(Level.SEVERE, null, ex);
                 continue;

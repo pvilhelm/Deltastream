@@ -29,27 +29,37 @@ public class OriginalTransmissionInputChopper extends TimerTask{
         //count size of buffer
         int n = datagramBuffer.size();
         if(n>65535){
-            System.out.println(new Date().toString()+": Incoming original transmission buffer too big");
+            System.err.println(new Date().toString()+": Incoming original transmission buffer too big. Discarding all ...");
             return;
         }
         int sum=0;
         for(Iterator<DatagramWrapper> iter =  datagramBuffer.iterator();iter.hasNext();){
-            sum+=iter.next().datagramData.length;
+            DatagramWrapper dgW = iter.next();
+            int l = dgW.datagramData.length;
+            if(l>ConfigData.INCOMING_ORIGINAL_UDP_MAX_SIZE){
+               System.err.println(new Date().toString()+": Incoming original transmission UDP package too big. Deleting it ...");
+               datagramBuffer.remove(dgW);
+            }
+            else
+                sum+=l;
         }
         
-        ByteBuffer dgrStream = ByteBuffer.allocate(sum+Part.HeaderSizes.TRANSMISSION_STREAMDATA_HEADERSIZE+n*(Part.HeaderSizes.STREAMDATA_CHUNK_HEADERSIZE));//TODO do header size nice
+        ByteBuffer dgrStream = ByteBuffer.allocate(sum+Part.HeaderSizes.TRANSMISSION_STREAMDATA_HEADERSIZE+n*(Part.HeaderSizes.TRANSMISSION_STREAMDATA_DATA_HEADERSIZE));//TODO do header size nice
         dgrStream.putLong(OriginalTransmissionInput.transmissionID);
         dgrStream.put(Part.PartTypes.TRANSMISSION_STREAMDATA);
         dgrStream.putLong(new Date().getTime());
         
         for(Iterator<DatagramWrapper> iter = datagramBuffer.iterator();iter.hasNext();){
             DatagramWrapper tmp = iter.next();
-            dgrStream.putShort((short)tmp.datagramData.length);
-            if((short)tmp.datagramData.length>0)
+            int msSinceHour = (int)(tmp.timestamp%(60*60*1000));
+            dgrStream.putInt(msSinceHour);
+            dgrStream.putChar((char)tmp.port);
+            dgrStream.putChar((char)tmp.datagramData.length);
+            if((char)tmp.datagramData.length>0)
                 dgrStream.put(tmp.datagramData);
         }
         TransStreamData newPart = new TransStreamData(dgrStream.array(),partNr,OriginalTransmissionInput.transmissionID);
-        System.out.println(new Date().toString()+": Gjorde del med storlek "+dgrStream.array().length/1024.0 + " kb");
+        System.out.println(new Date().toString()+": Gjorde del med storlek "+ dgrStream.array().length/1024.0 + " kb");
     }
 }
  

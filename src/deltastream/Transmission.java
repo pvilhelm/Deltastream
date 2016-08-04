@@ -83,7 +83,10 @@ public class Transmission {
     Thread orgInThread; 
     OriginalTransmissionInputChopper chopperTask;
     
-    BlockingQueue<DatagramPacket> remoteTxQue;
+    LinkedBlockingQueue<DatagramWrapper> remoteTxQue;
+    LinkedBlockingQueue<DatagramWrapper> remoteRxQue;
+    
+    HashMap<byte[],Node> nodeHashMap;
     
     RemoteRx remoteRx;
     Thread RemoteRxThread;
@@ -95,12 +98,15 @@ public class Transmission {
         transmissionId = rand.nextLong();
         startTime = new Date();
         remoteTxQue = new LinkedBlockingQueue(ConfigData.REMOTE_TX_BLOCKING_QUEUE_CAP);
+        nodeHashMap = new HashMap();
     }
     
     Transmission(long transmissionId){
         this.transmissionId = transmissionId;
         startTime = new Date();
         remoteTxQue = new LinkedBlockingQueue(ConfigData.REMOTE_TX_BLOCKING_QUEUE_CAP);
+        nodeHashMap = new HashMap();
+      
     }
     
     @Override
